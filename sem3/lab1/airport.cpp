@@ -6,10 +6,10 @@ using namespace std;
 
 class Airport {
     private:
-    string airportName = "";
-    int ticketPrice = 0;
-    int numberOfSeats = 0;
-    int ticketsSold = 0;
+    string airportName;
+    int ticketPrice;
+    int numberOfSeats;
+    int ticketsSold;
 
     public:
     int priceOfSoldTitckes() {
