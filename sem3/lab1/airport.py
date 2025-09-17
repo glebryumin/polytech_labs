@@ -35,13 +35,50 @@ class Airport:
 
 
 def main():
-    airport = Airport(airportName="NJC", ticketPrice=500, numberOfSeats=500, ticketsSold=150)
-    print("Airport Name:", airport.getAirportName())
-    print("Ticket Price:", airport.getTicketPrice())
-    print("Number of Seats:", airport.getNumberOfSeats())
-    print("Tickets Sold:", airport.getTicketsSold())
+    while True:
+        airportName = input("Введите имя аэропорта: ")
+        if airportName.strip():
+            break
+        print("Ошибка! Введите корректное имя аэропорта.")
+
+    while True:
+        try:
+            ticketPrice = int(input("Введите цену билета: "))
+            if ticketPrice > 0:
+                break
+            else:
+                print("Ошибка! Введите корректную цену билета.")
+        except ValueError:
+            print("Ошибка! Введите корректную цену билета.")
+
+    while True:
+        try:
+            numberOfSeats = int(input("Введите количество мест: "))
+            if numberOfSeats > 0:
+                break
+            else:
+                print("Ошибка! Введите корректное количество мест.")
+        except ValueError:
+            print("Ошибка! Введите корректное количество мест.")
+
+    while True:
+        try:
+            ticketsSold = int(input("Введите количество проданных билетов: "))
+            if 0 <= ticketsSold <= numberOfSeats:
+                break
+            else:
+                print("Ошибка! Введите корректное количество проданных билетов.")
+        except ValueError:
+            print("Ошибка! Введите корректное количество проданных билетов.")  
+
+    airport = Airport(airportName=airportName, ticketPrice=ticketPrice, numberOfSeats=numberOfSeats, ticketsSold=ticketsSold)
     print("------------------------")
-    print("Total Price of Sold Tickets:", airport.priceOfSoldTickets())
+    print("Имя аэропорта:", airport.getAirportName())
+    print("Цена билета:", airport.getTicketPrice())
+    print("Количество мест:", airport.getNumberOfSeats())
+    print("Количество проданных билетов:", airport.getTicketsSold())
+    print("------------------------")
+    print("Цена проданных билетов:", airport.priceOfSoldTickets())
 
 
 if __name__ == "__main__":
