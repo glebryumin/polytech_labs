@@ -32,20 +32,34 @@ class Airport {
         }
 };
 
-int getIntInput(string prompt, string errorMessage,int minValue = numeric_limits<int>::min() , int maxValue = numeric_limits<int>::max()) {
+int getIntInput(string prompt, string errorMessage, int minValue = numeric_limits<int>::min(), int maxValue = numeric_limits<int>::max()) {
     int value;
-    cout << prompt;
-    cin >> value;
-    while(cin.fail() || maxValue < value || value < minValue) {
+    string input;
+    cout << prompt << endl;
+    while (true) {
+        cin >> input;
+        bool isValid = !input.empty() && (input[0] == '-' ? input.size() > 1 : true);
+        for (size_t i = (input[0] == '-' ? 1 : 0); i < input.size(); ++i) {
+            if (!isdigit(input[i])) {
+                isValid = false;
+                break;
+            }
+        }
+        if (isValid) {
+            try {
+                size_t pos;
+                value = stoi(input, &pos);
+                if (pos == input.size() && value >= minValue && value <= maxValue) {
+                    break;
+                }
+            } catch (...) {}
+        }
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout << errorMessage << endl;
-        cin >> value;
     }
-    
     return value;
 }
-
 string getStringInput(string prompt, string errorMessage) {
     string value;
     cout << prompt;

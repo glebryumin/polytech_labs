@@ -42,11 +42,7 @@ class Till {
         void addTariff(const Tariff& tariff) {
             tariffs.push_back(tariff);  
         }
-        ~Till() {
-            tickets.clear();
-            tariffs.clear();
-            clients.clear();
-        }
+        ~Till() = default;
 
         int summaryOfSoldTickets() const {
             int sum = 0;
