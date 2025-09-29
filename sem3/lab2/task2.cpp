@@ -237,5 +237,6 @@ int main() {
             }
         }
     }
+    till.~Till();
     return 0;
 }
