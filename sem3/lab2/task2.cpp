@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <mutex>
 #include <limits>
 
 using namespace std;
@@ -29,7 +30,24 @@ class Till {
         vector<Ticket> tickets;
         vector<Tariff> tariffs;
         vector<Client> clients;
+        static Till* instancePtr;
+        static mutex mtx;
+        Till() {}
     public:
+
+
+        Till(const Till& obj) = delete;
+
+        static Till* getInstance() {
+            if (instancePtr == nullptr) {
+                lock_guard<mutex> lock(mtx);
+                if (instancePtr == nullptr) {
+                    instancePtr = new Till();
+                }
+            }
+            return instancePtr;
+        }
+
         void buyTicket(const Client& client, const Tariff& tariff) {
             Ticket ticket;
             ticket.client = client;
@@ -42,7 +60,6 @@ class Till {
         void addTariff(const Tariff& tariff) {
             tariffs.push_back(tariff);  
         }
-        ~Till() = default;
 
         int summaryOfSoldTickets() const {
             int sum = 0;
@@ -132,8 +149,12 @@ enum MenuAction {
     EXIT = 0
 };
 
+Till* Till::instancePtr = nullptr;
+mutex Till::mtx;
+
+
 int main() {
-    Till till;
+    Till* till = Till::getInstance();
     while (true) {
         cout << endl << "Меню:" << endl;
         cout << "1) Добавить тариф" << endl;
@@ -154,53 +175,53 @@ int main() {
             Tariff tariff;
             tariff.name = getStringInput("Введите название тарифа: ", "Ошибка ввода!");
             tariff.cost = getIntInput("Введите стоимость тарифа: ", "Ошибка ввода!", 1);
-            till.addTariff(tariff);
+            till->addTariff(tariff);
             cout << "Тариф добавлен." << endl;
         } else if (choice == ADD_CLIENT) {
             Client client;
             client.name = getStringInput("Введите имя клиента: ", "Ошибка ввода!");
             client.passport = getStringInput("Введите паспорт клиента: ", "Ошибка ввода!");
-            till.addClient(client);
+            till->addClient(client);
             cout << "Клиент добавлен." << endl;
         } else if (choice == BUY_TICKET) {
-            if (till.getClients().empty() || till.getTariffs().empty()) {
+            if (till->getClients().empty() || till->getTariffs().empty()) {
                 cout << "Нет клиентов или тарифов для покупки билета." << endl;
                 continue;
             }
             cout << "Выберите клиента:" << endl;
-            const auto& clients = till.getClients();
+            const auto& clients = till->getClients();
             for (size_t i = 0; i < clients.size(); ++i) {
                 cout << i + 1 << ") " << clients[i].name << " (" << clients[i].passport << ")" << endl;
             }
             int clientIdx = getIntInput("Введите номер клиента: ", "Ошибка ввода!", 1, clients.size()) - 1;
 
             cout << "Выберите тариф:" << endl;
-            const auto& tariffs = till.getTariffs();
+            const auto& tariffs = till->getTariffs();
             for (size_t i = 0; i < tariffs.size(); ++i) {
                 cout << i + 1 << ") " << tariffs[i].name << " (" << tariffs[i].cost << ")" << endl;
             }
             int tariffIdx = getIntInput("Введите номер тарифа: ", "Ошибка ввода!", 1, tariffs.size()) - 1;
 
-            till.buyTicket(clients[clientIdx], tariffs[tariffIdx]);
+            till->buyTicket(clients[clientIdx], tariffs[tariffIdx]);
             cout << "Билет куплен." << endl;
         } else if (choice == CLIENT_SUM) {
-            if (till.getClients().empty()) {
+            if (till->getClients().empty()) {
                 cout << "Нет клиентов." << endl;
                 continue;
             }
             cout << "Выберите клиента:" << endl;
-            const auto& clients = till.getClients();
+            const auto& clients = till->getClients();
             for (size_t i = 0; i < clients.size(); ++i) {
                 cout << i + 1 << ") " << clients[i].name << " (" << clients[i].passport << ")" << endl;
             }
             int clientIdx = getIntInput("Введите номер клиента: ", "Ошибка ввода!", 1, clients.size()) - 1;
-            int sum = till.summaryOfSoldTicketsByName(clients[clientIdx].name);
+            int sum = till->summaryOfSoldTicketsByName(clients[clientIdx].name);
             cout << "Сумма купленных билетов для " << clients[clientIdx].name << ": " << sum << endl;
         } else if (choice == TOTAL_SUM) {
-            int sum = till.summaryOfSoldTickets();
+            int sum = till->summaryOfSoldTickets();
             cout << "Общая сумма проданных билетов: " << sum << endl;
         } else if (choice == SHOW_TARIFFS) {
-            const auto& tariffs = till.getTariffs();
+            const auto& tariffs = till->getTariffs();
             if (tariffs.empty()) {
                 cout << "Нет тарифов." << endl;
             } else {
@@ -210,7 +231,7 @@ int main() {
                 }
             }
         } else if (choice == SHOW_CLIENTS) {
-            const auto& clients = till.getClients();
+            const auto& clients = till->getClients();
             if (clients.empty()) {
                 cout << "Нет пассажиров." << endl;
             } else {
@@ -220,7 +241,7 @@ int main() {
                 }
             }
         } else if (choice == SHOW_TICKETS) {
-            const auto& tickets = till.getTickets();
+            const auto& tickets = till->getTickets();
             if (tickets.empty()) {
                 cout << "Нет билетов." << endl;
             } else {
@@ -233,6 +254,5 @@ int main() {
             }
         }
     }
-    till.~Till();
     return 0;
 }
